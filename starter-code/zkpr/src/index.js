@@ -1,9 +1,5 @@
 /********** Event Listeners **********/
 document
-  .querySelector("#toggle-dark-mode")
-  .addEventListener("click", handleToggleDarkMode);
-
-document
   .querySelector("#animal-form")
   .addEventListener("submit", handleAnimalFormSubmit);
 
@@ -12,10 +8,6 @@ document
   .addEventListener("click", handleAnimalListClick);
 
 /********** Event Handlers **********/
-function handleToggleDarkMode() {
-  document.body.classList.toggle("dark-mode");
-}
-
 // Create Animal
 function handleAnimalFormSubmit(event) {
   // Step 0: always prevent default for form submit events
@@ -39,7 +31,7 @@ function handleAnimalFormSubmit(event) {
 }
 
 function handleAnimalListClick(event) {
-  if (event.target.matches(".delete-button")) {
+  if (event.target.dataset.action === "delete") {
     // Delete Animal
     const button = event.target;
 
@@ -77,20 +69,18 @@ function renderOneAnimal(animalObj) {
 
   // step 2. use innerHTML to create all of its children
   card.innerHTML = `
-  <div class="image">
-    <img src="${animalObj.imageUrl}" alt="${animalObj.name}">
-    <button class="button delete-button" data-action="delete">X</button>
-  </div>
+  <img src="${animalObj.imageUrl}" alt="${animalObj.name}">
   <div class="content">
     <h4>${animalObj.name}</h4>
-    <div class="donations">
+    <p>
       $<span class="donation-count">${animalObj.donations}</span> Donated
-    </div>
-    <p class="description">${animalObj.description}</p>
+    </p>
+    <p>${animalObj.description}</p>
   </div>
-  <button class="button donate-button" data-action="donate">
-    Donate $10
-  </button>
+  <div class="buttons">
+    <button data-action="donate">Donate $10</button>
+    <button data-action="delete">Set Free</button>
+  </div>
   `;
 
   // step 3. slap it on the DOM!
@@ -99,11 +89,16 @@ function renderOneAnimal(animalObj) {
 
 /********** Initial Render **********/
 function initialize() {
-  // TODO: get animals from the server
-  // animalData is an array of animal objects from data.js
-  animalData.forEach((animal) => {
-    renderOneAnimal(animal);
-  });
+  // GET animals
+  fetch("http://localhost:3000/animals")
+    .then((response) => response.json())
+    .then((animalArray) => {
+      // for each animal in the array
+      animalArray.forEach((animal) => {
+        // render the animal to the DOM
+        renderOneAnimal(animal);
+      });
+    });
 }
 
 initialize();
